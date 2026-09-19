@@ -35,11 +35,17 @@ public class GlobalExceptionHandler {
     }
 
     private HttpStatus mapStatus(String code) {
-        if ("MEMBER_NOT_FOUND".equals(code) || "RUN_NOT_FOUND".equals(code)) {
-            return HttpStatus.NOT_FOUND;
+        if (code == null) {
+            return HttpStatus.BAD_REQUEST;
         }
-        // BUG: authz codes routed through validation mapper.
-        return ForbiddenAsValidationMapper.mapAuthz(code);
+        return switch (code) {
+            // Authn/authz failures keep their own statuses so the SPA can tell
+            // "no permission" apart from "bad input".
+            case "FORBIDDEN", "ROLE_DENIED", "OPERATOR_REQUIRED" -> HttpStatus.FORBIDDEN;
+            case "AUTH_FAILED", "UNAUTHORIZED" -> HttpStatus.UNAUTHORIZED;
+            case "MEMBER_NOT_FOUND", "RUN_NOT_FOUND" -> HttpStatus.NOT_FOUND;
+            default -> HttpStatus.BAD_REQUEST;
+        };
     }
 
 }

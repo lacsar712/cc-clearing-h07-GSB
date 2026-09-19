@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { errorMessageFor } from './errorMessage'
 
 const api = axios.create({
   baseURL: '/api',
@@ -14,24 +15,12 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-function flattenErrorMessage(status, payload, fallback) {
-  // BUG: any 400 becomes the same generic copy, including authz failures.
-  if (status === 400) {
-    return '输入不合法'
-  }
-  if (status === 403) {
-    // unreachable while backend maps FORBIDDEN -> 400
-    return '输入不合法'
-  }
-  return payload?.message || fallback || '请求失败'
-}
-
 api.interceptors.response.use(
   (resp) => resp,
   (error) => {
     const payload = error.response?.data
     const status = error.response?.status
-    const msg = flattenErrorMessage(status, payload, error.message)
+    const msg = errorMessageFor(status, payload, error.message)
     if (status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('username')
