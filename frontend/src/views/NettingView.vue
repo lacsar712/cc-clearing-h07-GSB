@@ -11,8 +11,9 @@
           <el-option label="CNY" value="CNY" />
           <el-option label="EUR" value="EUR" />
         </el-select>
-        <el-button type="primary" :disabled="!auth.isOperator" :loading="running" @click="execute">执行轧差</el-button>
+        <el-button type="primary" :loading="running" @click="execute">执行轧差</el-button>
         <el-button @click="loadRuns">刷新批次</el-button>
+        <span v-if="!auth.isOperator" class="role-hint">当前为查看者角色，执行轧差需要操作员权限</span>
       </div>
     </div>
 

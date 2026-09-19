@@ -58,3 +58,8 @@ a {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;
 }
+
+.role-hint {
+  font-size: 12px;
+  color: #b45309;
+}

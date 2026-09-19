@@ -8,10 +8,13 @@
       <el-button @click="load">刷新</el-button>
       <el-button
         type="success"
-        :disabled="!auth.isOperator || detail?.run?.status !== 'COMPLETED' || alreadySettled"
+        :disabled="detail?.run?.status !== 'COMPLETED' || alreadySettled"
         :loading="settling"
         @click="settle"
       >确认 Settle</el-button>
+      <span v-if="!auth.isOperator && detail?.run?.status === 'COMPLETED' && !alreadySettled" class="role-hint">
+        当前为查看者角色，确认 Settle 需要操作员权限
+      </span>
     </div>
 
     <div class="card-panel" v-loading="loading">

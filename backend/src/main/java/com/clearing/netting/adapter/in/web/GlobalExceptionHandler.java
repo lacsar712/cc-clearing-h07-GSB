@@ -9,10 +9,20 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Set<String> FORBIDDEN_CODES = Set.of(
+            "FORBIDDEN", "ROLE_DENIED", "OPERATOR_REQUIRED");
+
+    private static final Set<String> UNAUTHORIZED_CODES = Set.of(
+            "UNAUTHORIZED", "AUTH_FAILED");
+
+    private static final Set<String> NOT_FOUND_CODES = Set.of(
+            "MEMBER_NOT_FOUND", "RUN_NOT_FOUND");
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleDomain(DomainException ex) {
@@ -35,11 +45,16 @@ public class GlobalExceptionHandler {
     }
 
     private HttpStatus mapStatus(String code) {
-        if ("MEMBER_NOT_FOUND".equals(code) || "RUN_NOT_FOUND".equals(code)) {
+        if (FORBIDDEN_CODES.contains(code)) {
+            return HttpStatus.FORBIDDEN;
+        }
+        if (UNAUTHORIZED_CODES.contains(code)) {
+            return HttpStatus.UNAUTHORIZED;
+        }
+        if (NOT_FOUND_CODES.contains(code)) {
             return HttpStatus.NOT_FOUND;
         }
-        // BUG: authz codes routed through validation mapper.
-        return ForbiddenAsValidationMapper.mapAuthz(code);
+        return HttpStatus.BAD_REQUEST;
     }
 
 }

@@ -41,7 +41,8 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-button type="primary" :disabled="!auth.isOperator" :loading="saving" @click="create">提交义务</el-button>
+        <el-button type="primary" :loading="saving" @click="create">提交义务</el-button>
+        <span v-if="!auth.isOperator" class="role-hint">当前为查看者角色，录入义务需要操作员权限</span>
       </el-form>
     </div>
 

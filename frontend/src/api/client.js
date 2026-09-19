@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { flattenErrorMessage } from './errorMessage'
 
 const api = axios.create({
   baseURL: '/api',
@@ -14,18 +15,6 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-function flattenErrorMessage(status, payload, fallback) {
-  // BUG: any 400 becomes the same generic copy, including authz failures.
-  if (status === 400) {
-    return '输入不合法'
-  }
-  if (status === 403) {
-    // unreachable while backend maps FORBIDDEN -> 400
-    return '输入不合法'
-  }
-  return payload?.message || fallback || '请求失败'
-}
-
 api.interceptors.response.use(
   (resp) => resp,
   (error) => {
@@ -36,7 +25,10 @@ api.interceptors.response.use(
       localStorage.removeItem('token')
       localStorage.removeItem('username')
       localStorage.removeItem('role')
-      if (!window.location.pathname.includes('/login')) {
+      if (window.location.pathname.includes('/login')) {
+        // Stay on the login page, but still show why (e.g. bad credentials).
+        ElMessage.error(msg)
+      } else {
         window.location.href = '/login'
       }
     } else {

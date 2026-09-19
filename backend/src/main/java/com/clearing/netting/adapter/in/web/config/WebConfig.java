@@ -1,17 +1,33 @@
 package com.clearing.netting.adapter.in.web.config;
 
 import com.clearing.netting.adapter.in.web.auth.JwtAuthFilter;
+import com.clearing.netting.adapter.in.web.auth.OperatorWriteInterceptor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
 @Configuration
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
+
+    private final OperatorWriteInterceptor operatorWriteInterceptor;
+
+    public WebConfig(OperatorWriteInterceptor operatorWriteInterceptor) {
+        this.operatorWriteInterceptor = operatorWriteInterceptor;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(operatorWriteInterceptor)
+                .addPathPatterns("/api/**")
+                .excludePathPatterns("/api/auth/**");
+    }
 
     @Bean
     public FilterRegistrationBean<JwtAuthFilter> jwtFilterRegistration(JwtAuthFilter filter) {
